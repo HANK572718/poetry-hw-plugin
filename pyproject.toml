@@ -1,0 +1,20 @@
+[tool.poetry]
+name        = "poetry-hw-plugin"
+version     = "0.1.0"
+description = "Poetry plugin: auto-detect hardware and switch variant pyproject/lock"
+authors     = ["Hank <ha28763024@gmail.com>"]
+readme      = "README.md"
+packages    = [{ include = "hw_plugin" }]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.0"
+
+[tool.poetry.plugins."poetry.application.plugin"]
+hw-select = "hw_plugin.plugin:HwSelectPlugin"
+
+[build-system]
+requires      = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
