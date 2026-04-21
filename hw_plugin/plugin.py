@@ -13,6 +13,7 @@ from poetry.console.commands.install import InstallCommand
 from poetry.console.commands.lock import LockCommand
 from poetry.plugins.application_plugin import ApplicationPlugin
 
+from .command import HwInfoCommand
 from .detector import detect_variant
 
 _HOOKED_COMMANDS = (InstallCommand, LockCommand)
@@ -25,6 +26,7 @@ class HwSelectPlugin(ApplicationPlugin):
     _variant: str | None = None
 
     def activate(self, application) -> None:  # type: ignore[override]
+        application.add(HwInfoCommand())
         application.event_dispatcher.add_listener(COMMAND, self.before_command)
         application.event_dispatcher.add_listener(TERMINATE, self.after_command)
 
