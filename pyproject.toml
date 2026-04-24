@@ -11,6 +11,8 @@ python = ">=3.10"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.0"
+mypy  = ">=1.5"
+ruff  = ">=0.1"
 
 [tool.poetry.plugins."poetry.application.plugin"]
 hw-select = "hw_plugin.plugin:HwSelectPlugin"
@@ -18,3 +20,16 @@ hw-select = "hw_plugin.plugin:HwSelectPlugin"
 [build-system]
 requires      = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+python_version = "3.10"
+strict         = true
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py310"
+line-length    = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "PTH"]
+ignore = ["B008"]

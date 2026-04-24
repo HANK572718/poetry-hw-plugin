@@ -91,18 +91,14 @@ def test_linux_x86_cpu(monkeypatch: pytest.MonkeyPatch) -> None:
 # ------------------------------------------------------------------
 
 
-def test_linux_arm_jetson(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_linux_arm_jetson(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("HW_VARIANT", raising=False)
-    model_file = tmp_path / "model"
-    model_file.write_text("NVIDIA Jetson Orin NX")
-
     with (
         patch("platform.system", return_value="Linux"),
         patch("platform.machine", return_value="aarch64"),
         patch("subprocess.run", side_effect=FileNotFoundError),
-        patch("hw_plugin.detector.Path") as mock_path,
+        patch("hw_plugin.detector._is_jetson", return_value=True),
     ):
-        mock_path.return_value.read_text.return_value = "NVIDIA Jetson Orin NX"
         assert detect_variant() == "linux-arm-cuda"
 
 
@@ -115,3 +111,43 @@ def test_linux_arm_cpu(monkeypatch: pytest.MonkeyPatch) -> None:
         patch("hw_plugin.detector._is_jetson", return_value=False),
     ):
         assert detect_variant() == "linux-arm-cpu"
+
+
+# ------------------------------------------------------------------
+# Linux x86_64 Intel XPU
+# ------------------------------------------------------------------
+
+
+def test_linux_x86_xpu(monkeypatch: pytest.MonkeyPatch) -> None:
+    """nvidia-smi absent, xpu-smi present → linux-x86-xpu."""
+    monkeypatch.delenv("HW_VARIANT", raising=False)
+
+    def _run_side_effect(cmd, **kwargs):
+        if cmd[0] == "nvidia-smi":
+            raise FileNotFoundError
+        # xpu-smi succeeds
+        return MagicMock(returncode=0, stdout="Intel GPU detected")
+
+    with (
+        patch("platform.system", return_value="Linux"),
+        patch("platform.machine", return_value="x86_64"),
+        patch("subprocess.run", side_effect=_run_side_effect),
+    ):
+        assert detect_variant() == "linux-x86-xpu"
+
+
+# ------------------------------------------------------------------
+# Windows Intel XPU
+# ------------------------------------------------------------------
+
+
+def test_windows_xpu(monkeypatch: pytest.MonkeyPatch) -> None:
+    """nvidia-smi absent, Intel Arc GPU via WMI → win-xpu."""
+    monkeypatch.delenv("HW_VARIANT", raising=False)
+    with (
+        patch("platform.system", return_value="Windows"),
+        patch("platform.machine", return_value="AMD64"),
+        patch("subprocess.run", side_effect=FileNotFoundError),
+        patch("hw_plugin.detector._intel_gpu_via_wmi", return_value=True),
+    ):
+        assert detect_variant() == "win-xpu"

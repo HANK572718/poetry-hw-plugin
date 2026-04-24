@@ -10,6 +10,19 @@ from cleo.commands.command import Command
 from cleo.helpers import option
 
 
+def _find_project_root(start: Path | None = None) -> Path:
+    """Walk up from *start* (default: cwd) to find the directory containing pyproject.toml.
+
+    Returns the first ancestor directory that contains a ``pyproject.toml`` file.
+    Falls back to the starting directory if none is found.
+    """
+    current = (start or Path.cwd()).resolve()
+    for directory in (current, *current.parents):
+        if (directory / "pyproject.toml").exists():
+            return directory
+    return current
+
+
 class HwInfoCommand(Command):
     """Show hardware detection status, available variants, and usage help."""
 
@@ -55,7 +68,7 @@ class HwInfoCommand(Command):
             )
 
         # ── Project variants ──────────────────────────────────────────
-        variants_dir = Path.cwd() / "variants"
+        variants_dir = _find_project_root() / "variants"
         if variants_dir.exists() and variants_dir.is_dir():
             available = sorted(d.name for d in variants_dir.iterdir() if d.is_dir())
             self.line("")

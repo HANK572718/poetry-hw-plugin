@@ -86,7 +86,7 @@ def _intel_gpu_via_wmi() -> bool:
             [
                 "powershell",
                 "-Command",
-                "Get-WmiObject Win32_VideoController | Select-Object -ExpandProperty Name",
+                "Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name",
             ],
             capture_output=True,
             text=True,

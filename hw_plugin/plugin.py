@@ -3,27 +3,32 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 from pathlib import Path
 
 from cleo.events.console_command_event import ConsoleCommandEvent
 from cleo.events.console_events import COMMAND, TERMINATE
 from cleo.events.console_terminate_event import ConsoleTerminateEvent
+from cleo.io.io import IO
 from poetry.console.commands.install import InstallCommand
 from poetry.console.commands.lock import LockCommand
+from poetry.console.commands.update import UpdateCommand
 from poetry.plugins.application_plugin import ApplicationPlugin
 
 from .command import HwInfoCommand
 from .detector import detect_variant
 
-_HOOKED_COMMANDS = (InstallCommand, LockCommand)
+_HOOKED_COMMANDS = (InstallCommand, LockCommand, UpdateCommand)
 
 
 class HwSelectPlugin(ApplicationPlugin):
     """Switch pyproject.toml and poetry.lock based on detected hardware."""
 
-    _root: Path | None = None
-    _variant: str | None = None
+    def __init__(self) -> None:
+        """Initialise per-instance state so multiple instances don't share data."""
+        self._root: Path | None = None
+        self._variant: str | None = None
 
     def activate(self, application) -> None:  # type: ignore[override]
         application.add(HwInfoCommand())
@@ -128,7 +133,7 @@ class HwSelectPlugin(ApplicationPlugin):
 # ------------------------------------------------------------------
 
 
-def _ensure_gitignore(root: Path, io: object) -> None:
+def _ensure_gitignore(root: Path, io: IO) -> None:
     """Append /poetry.lock to .gitignore if not already present."""
     gitignore = root / ".gitignore"
     entry = "/poetry.lock"
@@ -147,22 +152,22 @@ def _ensure_gitignore(root: Path, io: object) -> None:
             f"# hw-plugin: root lock is variant-specific\n{entry}\n",
             encoding="utf-8",
         )
-    io.write_line(f"<comment>[hw-plugin] Added '{entry}' to .gitignore</comment>")  # type: ignore[attr-defined]
+    io.write_line(f"<comment>[hw-plugin] Added '{entry}' to .gitignore</comment>")
 
 
-def _ensure_venv_in_project(root: Path, io: object) -> None:
+def _ensure_venv_in_project(root: Path, io: IO) -> None:
     """Write poetry.toml to pin virtualenv inside the project directory."""
     poetry_toml = root / "poetry.toml"
     desired = "[virtualenvs]\nin-project = true\n"
 
     if poetry_toml.exists():
         content = poetry_toml.read_text(encoding="utf-8")
-        if "in-project" in content:
+        if re.search(r"in-project\s*=\s*true", content):
             return
         poetry_toml.write_text(content.rstrip() + "\n\n" + desired, encoding="utf-8")
     else:
         poetry_toml.write_text(desired, encoding="utf-8")
 
-    io.write_line(  # type: ignore[attr-defined]
+    io.write_line(
         "<comment>[hw-plugin] poetry.toml: virtualenvs.in-project = true</comment>"
     )
