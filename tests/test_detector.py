@@ -35,10 +35,6 @@ def test_macos(monkeypatch: pytest.MonkeyPatch) -> None:
 # ------------------------------------------------------------------
 
 
-def _win_no_gpu_run(cmd, **kwargs):
-    raise FileNotFoundError
-
-
 def test_windows_cuda(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("HW_VARIANT", raising=False)
     with (
@@ -122,7 +118,7 @@ def test_linux_x86_xpu(monkeypatch: pytest.MonkeyPatch) -> None:
     """nvidia-smi absent, xpu-smi present → linux-x86-xpu."""
     monkeypatch.delenv("HW_VARIANT", raising=False)
 
-    def _run_side_effect(cmd, **kwargs):
+    def _run_side_effect(cmd, **_):
         if cmd[0] == "nvidia-smi":
             raise FileNotFoundError
         # xpu-smi succeeds
