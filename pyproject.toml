@@ -7,7 +7,10 @@ readme      = "README.md"
 packages    = [{ include = "hw_plugin" }]
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+python      = ">=3.10"
+rich        = "^13.7"
+questionary = "^2.0"
+tomli       = { version = "^2.0", python = "<3.11" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.0"

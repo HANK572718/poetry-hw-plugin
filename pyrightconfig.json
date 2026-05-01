@@ -2,5 +2,7 @@
   "pythonVersion": "3.10",
   "typeCheckingMode": "basic",
   "reportMissingImports": "none",
-  "reportMissingModuleSource": "none"
+  "reportMissingModuleSource": "none",
+  "venvPath": ".",
+  "venv": ".venv"
 }

@@ -7,3 +7,8 @@ __pycache__/
 *.egg-info/
 .claude/
 CLAUDE.md
+
+# demo-consumer: root lock + venv are plugin-managed, only variant locks are committed
+examples/*/poetry.lock
+examples/*/.venv/
+examples/*/poetry.toml
