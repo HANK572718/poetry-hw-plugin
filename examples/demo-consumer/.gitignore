@@ -1,0 +1,7 @@
+# hw-plugin: root lock is variant-specific
+/poetry.lock
+# hw-plugin managed
+/.hw-plugin-state
+# editor backup / undo files
+*.un~
+*~

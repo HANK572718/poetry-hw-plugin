@@ -1,0 +1,29 @@
+# Pattern A — native PyPI install (same base as win-cpu):
+#   psutil  →  installed normally from PyPI
+#
+# Pattern B — added platform-specific dep (GPU-only addition):
+#   nvidia-ml-py  →  pure-Python NVML binding, only meaningful on CUDA machines
+#                    installable anywhere; will error at runtime without NVIDIA driver
+#
+# Pattern C — forced URL install (comment shows syntax for large packages like torch):
+#   torch  →  uncomment below to install a custom CUDA wheel instead of the PyPI version
+
+[tool.poetry]
+name         = "demo-consumer"
+version      = "0.1.0"
+description  = "hw-plugin demo: Windows + CUDA variant"
+authors      = []
+package-mode = false
+
+[tool.poetry.dependencies]
+python       = ">=3.10"
+psutil       = "^6.0"       # same as win-cpu — shared base dep
+nvidia-ml-py = ">=12.535"   # GPU-specific addition: NVIDIA Management Library Python binding
+
+# ── URL install pattern — uncomment for real CUDA torch deployment ────────────
+# torch = { url = "https://download.pytorch.org/whl/cu128/torch-2.10.0%2Bcu128-cp310-cp310-win_amd64.whl" }
+# torchvision = { url = "https://download.pytorch.org/whl/cu128/torchvision-0.25.0%2Bcu128-cp310-cp310-win_amd64.whl" }
+
+[build-system]
+requires      = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"

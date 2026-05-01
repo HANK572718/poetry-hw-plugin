@@ -1,0 +1,17 @@
+# Pattern: native PyPI install — no GPU dependencies
+# poetry install  →  only CPU-safe packages are installed
+
+[tool.poetry]
+name         = "demo-consumer"
+version      = "0.1.0"
+description  = "hw-plugin demo: CPU-only variant"
+authors      = []
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+psutil = "^6.0"    # cross-platform CPU / memory monitoring (~500 KB, pure Python)
+
+[build-system]
+requires      = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
