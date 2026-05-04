@@ -33,12 +33,12 @@ from poetry.plugins.application_plugin import ApplicationPlugin
 
 from .command import HwInfoCommand
 from .detector import detect_variant
+from .hooks import run_pre_install, run_post_install
 from .scaffold import create_placeholder, create_variant
 from .state import read_last_variant, write_last_variant
 
 _HOOKED_COMMANDS = (InstallCommand, LockCommand, UpdateCommand)
 _console = Console()
-_HOOKED_COMMANDS = (InstallCommand, LockCommand)
 
 
 class HwSelectPlugin(ApplicationPlugin):
@@ -206,6 +206,10 @@ class HwSelectPlugin(ApplicationPlugin):
         # startup (which may be a different variant or the placeholder).
         _invalidate_poetry_cache(event)
 
+        # ── pre_install hook ──────────────────────────────────────────────
+        if isinstance(event.command, InstallCommand):
+            run_pre_install(variant_dir, cwd, io)
+
         self._root = cwd
         self._variant = variant
 
@@ -243,6 +247,11 @@ class HwSelectPlugin(ApplicationPlugin):
             )
 
         write_last_variant(root, self._variant)
+
+        # ── post_install hook ─────────────────────────────────────────────
+        if isinstance(event.command, InstallCommand):
+            run_post_install(variant_dir, root, event.io)
+
         _print_install_summary(root, self._variant)
 
         self._root = None
@@ -254,10 +263,6 @@ class HwSelectPlugin(ApplicationPlugin):
 # ------------------------------------------------------------------
 
 
-def _ensure_gitignore(root: Path, io: IO) -> None:
-    """Append /poetry.lock to .gitignore if not already present."""
-    gitignore = root / ".gitignore"
-    entry = "/poetry.lock"
 def _show_install_tui(
     detected: str,
     cwd: Path,
@@ -535,7 +540,6 @@ def _ensure_gitignore(root: Path, io: object) -> None:
         io.write_line(  # type: ignore[attr-defined]
             f"<comment>[hw-plugin] Added '{entry}' to .gitignore</comment>"
         )
-    io.write_line(f"<comment>[hw-plugin] Added '{entry}' to .gitignore</comment>")
 
 
 def _ensure_venv_in_project(root: Path, io: IO) -> None:
