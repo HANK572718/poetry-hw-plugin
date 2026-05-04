@@ -93,6 +93,7 @@ def _intel_gpu_via_wmi() -> bool:
             timeout=8,
         )
         out = r.stdout
-        return "Intel" in out and ("Arc" in out or "Iris" in out)
+        # Only match discrete Arc GPU; Iris Xe is integrated and lacks XPU torch support
+        return "Intel" in out and "Arc" in out
     except Exception:
         return False
