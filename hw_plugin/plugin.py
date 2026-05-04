@@ -38,7 +38,6 @@ from .state import read_last_variant, write_last_variant
 
 _HOOKED_COMMANDS = (InstallCommand, LockCommand, UpdateCommand)
 _console = Console()
-_HOOKED_COMMANDS = (InstallCommand, LockCommand)
 
 
 class HwSelectPlugin(ApplicationPlugin):
@@ -535,7 +534,6 @@ def _ensure_gitignore(root: Path, io: object) -> None:
         io.write_line(  # type: ignore[attr-defined]
             f"<comment>[hw-plugin] Added '{entry}' to .gitignore</comment>"
         )
-    io.write_line(f"<comment>[hw-plugin] Added '{entry}' to .gitignore</comment>")
 
 
 def _ensure_venv_in_project(root: Path, io: IO) -> None:
